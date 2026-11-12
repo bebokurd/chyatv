@@ -1,0 +1,69 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-ios:
+    name: Build iOS (IPA)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby 3.3 (Bypasses Homebrew Ruby 3.4 CocoaPods crash)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: false
+
+      - name: Install Stable CocoaPods
+        run: |
+          gem install cocoapods
+          pod --version
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Enforce iOS Deployment Target 14.0 in Podfile
+        run: |
+          ruby -i -pe "gsub(/#?\s*platform\s*:ios.*/, \"platform :ios, '14.0'\")" ios/Podfile
+          head -n 5 ios/Podfile
+
+      - name: Install Flutter Dependencies
+        run: flutter pub get
+
+      - name: Run CocoaPods Pod Install
+        run: |
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Build iOS Application (No Codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Package Payload to IPA
+        run: |
+          mkdir -p build/ios/iphoneos/Payload
+          cp -r build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload/
+          cd build/ios/iphoneos
+          zip -r -q NetflixKurdish-unsigned.ipa Payload
+          cd ../../..
+
+      - name: Upload iOS IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetflixKurdish-iOS-unsigned
+          path: build/ios/iphoneos/NetflixKurdish-unsigned.ipa
+          if-no-files-found: error
