@@ -39,18 +39,64 @@ class NetflixTopBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               child: Row(
                 children: [
-                  // Netflix "N" Logo / Brand
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    child: const Text(
-                      'NETFLIX',
-                      style: TextStyle(
-                        color: NetflixTheme.netflixRed,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.5,
+                  // CHYA TV Logo / Brand
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.asset(
+                          'assets/images/chyatv_icon.png',
+                          width: 30,
+                          height: 30,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: NetflixTheme.netflixRed,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'C',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'CHYA',
+                        style: TextStyle(
+                          color: NetflixTheme.netflixRed,
+                          fontSize: 21,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: NetflixTheme.netflixRed,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.white70, width: 0.8),
+                        ),
+                        child: const Text(
+                          'TV',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const Spacer(),
 

@@ -43,10 +43,15 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Precache Flutter iOS Artifacts and Generate Config
+        run: |
+          flutter precache --ios
+          flutter build ios --config-only --no-codesign
+
       - name: Run CocoaPods Pod Install
         run: |
           cd ios
-          pod install --repo-update
+          pod install --repo-update || pod install
           cd ..
 
       - name: Build iOS Release (No Code Signing)
@@ -58,11 +63,12 @@ jobs:
           cp -r build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload/
           cd build/ios/iphoneos
           zip -r NetflixKurdish-unsigned.ipa Payload
+          cp NetflixKurdish-unsigned.ipa ChyaTV-unsigned.ipa
           cd ../../..
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NetflixKurdish-iOS-unsigned
-          path: build/ios/iphoneos/NetflixKurdish-unsigned.ipa
+          name: ChyaTV-iOS-unsigned
+          path: build/ios/iphoneos/ChyaTV-unsigned.ipa
           if-no-files-found: warn

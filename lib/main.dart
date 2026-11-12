@@ -30,7 +30,7 @@ class NetflixKurdApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'نێتفلیکس کوردی',
+      title: 'CHYA TV',
       debugShowCheckedModeBanner: false,
       theme: NetflixTheme.darkTheme,
       builder: (context, child) {

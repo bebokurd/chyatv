@@ -1,5 +1,5 @@
 name: netflix_kurdish
-description: "Netflix Kurdish - Kurdish Movies, Series, Kids and Anime with TMDB and Stream support"
+description: "CHYA TV - Kurdish Movies, Series, Kids and Anime with TMDB and Stream support"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -24,3 +24,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/

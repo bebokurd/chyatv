@@ -332,7 +332,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     Text(
                       _item.overview?.isNotEmpty == true
                           ? _item.overview!
-                          : 'چێژ لە بینینی ${_item.nameKurdish} بە کوالیتی بەرز و دۆبلاژی کوردی وەربگرە لەسەر نێتفلیکس کوردی.',
+                          : 'چێژ لە بینینی ${_item.nameKurdish} بە کوالیتی بەرز و دۆبلاژی کوردی وەربگرە لەسەر CHYA TV.',
                       style: const TextStyle(
                         color: NetflixTheme.netflixLightGray,
                         fontSize: 13,
