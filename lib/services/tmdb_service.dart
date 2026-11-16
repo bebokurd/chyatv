@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/media_item.dart';
+import '../models/tmdb_details.dart';
 
 class TMDBService {
   static const String apiKey = '8639372f4a9255120794124116c6e93f';
   static const String baseUrl = 'https://api.themoviedb.org/3';
   static const String imageBaseW500 = 'https://image.tmdb.org/t/p/w500';
+  static const String imageBaseW780 = 'https://image.tmdb.org/t/p/w780';
   static const String imageBaseOriginal = 'https://image.tmdb.org/t/p/original';
 
   static final TMDBService _instance = TMDBService._internal();
@@ -13,6 +15,7 @@ class TMDBService {
   TMDBService._internal();
 
   final Map<String, Map<String, dynamic>> _imdbCache = {};
+  final Map<String, TMDBExtendedDetails> _extendedDetailsCache = {};
 
   Future<Map<String, dynamic>?> getDetailsByImdbId(String imdbId) async {
     if (_imdbCache.containsKey(imdbId)) {
@@ -30,8 +33,10 @@ class TMDBService {
         Map<String, dynamic>? match;
         if (movieResults != null && movieResults.isNotEmpty) {
           match = movieResults.first as Map<String, dynamic>;
+          match['resolved_type'] = 'movie';
         } else if (tvResults != null && tvResults.isNotEmpty) {
           match = tvResults.first as Map<String, dynamic>;
+          match['resolved_type'] = 'tv';
         }
 
         if (match != null) {
@@ -40,6 +45,51 @@ class TMDBService {
         }
       }
     } catch (_) {}
+    return null;
+  }
+
+  Future<TMDBExtendedDetails?> getFullMediaDetails({
+    int? tmdbId,
+    String? imdbId,
+    String defaultType = 'movie',
+  }) async {
+    final cacheKey = '${tmdbId ?? 0}_${imdbId ?? ''}_$defaultType';
+    if (_extendedDetailsCache.containsKey(cacheKey)) {
+      return _extendedDetailsCache[cacheKey];
+    }
+
+    int? targetId = tmdbId;
+    String endpointType = defaultType == 'series' ? 'tv' : 'movie';
+
+    if (targetId == null || targetId <= 0) {
+      if (imdbId != null && imdbId.isNotEmpty) {
+        final findResult = await getDetailsByImdbId(imdbId);
+        if (findResult != null) {
+          targetId = findResult['id'] is int
+              ? findResult['id']
+              : int.tryParse(findResult['id']?.toString() ?? '0');
+          if (findResult['resolved_type'] != null) {
+            endpointType = findResult['resolved_type'];
+          }
+        }
+      }
+    }
+
+    if (targetId == null || targetId <= 0) return null;
+
+    try {
+      final url = Uri.parse(
+          '$baseUrl/$endpointType/$targetId?api_key=$apiKey&append_to_response=credits,videos,images');
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final details = TMDBExtendedDetails.fromJson(data);
+        _extendedDetailsCache[cacheKey] = details;
+        return details;
+      }
+    } catch (_) {}
+
     return null;
   }
 
@@ -140,4 +190,3 @@ class TMDBService {
     );
   }
 }
-
